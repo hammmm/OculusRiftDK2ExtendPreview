@@ -34,18 +34,18 @@ public class GameWindowMover : EditorWindow
 	private bool toggle = true;
 	
 	//Get the size of the window borders. Changes depending on the OS.
-	#if UNITY_STANDALONE_WIN
+	#if UNITY_EDITOR_WIN
 	//Windows settings
 	private int osBorderWidth = 5;
-	#elif UNITY_STANDALONE_OSX
+	#elif UNITY_EDITOR_OSX
 	//Mac settings (untested)
 	private int osBorderWidth = 0; //OSX windows are borderless.
 	#else
 	//Linux / other platform; sizes change depending on the variant you're running
 	private int osBorderWidth = 5;
 	#endif
-	//default setting 
-	private static Vector2 gameSizeDK1 = new Vector2(1280, 800); // Oculus Rift DK1 resolution
+
+	//private static Vector2 gameSizeDK1 = new Vector2(1280, 800); // Oculus Rift DK1 resolution
 	private static Vector2 gameSizeDK2 = new Vector2(1920, 1080); // Oculus Rift DK2 resolution
 
 	//Desired window resolution
@@ -67,7 +67,7 @@ public class GameWindowMover : EditorWindow
 	// add for win32 api to get display resolution
 	// ---------------------------------------------------------------------------------------------------
 	// resolutions list exclude main monitor
-#if UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_WIN
 	private List<RectApi> screenInfo;
 	
 	delegate bool MonitorEnumProc(IntPtr hMonitor, IntPtr hdc, ref RectApi pRect, int dwData);
@@ -135,7 +135,7 @@ public class GameWindowMover : EditorWindow
 	// ---------------------------------------------------------------------------------------------------
 	// end win32 api
 	// ---------------------------------------------------------------------------------------------------
-#elif UNITY_STANDALONE_OSX
+#elif UNITY_EDITOR_OSX
 	void SetDefault(bool flg)
 	{
 		if (flg || gameSize.x == 0) {
@@ -161,7 +161,11 @@ public class GameWindowMover : EditorWindow
 		Vector2 popupSize = new Vector2(300, 140);
 		//When minSize and maxSize are the same, no OS border is applied to the window.
 		window.minSize = popupSize;
+#if UNITY_EDITOR_OSX
+		window.maxSize = popupSize + new Vector2(0, 1); // make popup window draggable for OSX
+#else
 		window.maxSize = popupSize;
+#endif
 		window.title = "RiftMode";
 		window.ShowPopup();
 	}
@@ -181,7 +185,6 @@ public class GameWindowMover : EditorWindow
 	void OnGUI()
 	{
 #if UNITY_EDITOR
-		
 		EditorGUILayout.Space();
 		
 		if (useDesktopResolution)
@@ -215,7 +218,6 @@ public class GameWindowMover : EditorWindow
 			}
 			else
 			{
-				CloseGameWindow();
 				toggle = false;
 			}
 		}

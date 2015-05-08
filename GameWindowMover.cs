@@ -45,14 +45,14 @@ public class GameWindowMover : EditorWindow
 	private int osBorderWidth = 5;
 	#endif
 	//default setting 
-	private static Vector2 _gameSize = new Vector2(0, 0); //window positon init size
-	private static Vector2 _gamePosition = new Vector2(0, 0);
-	
+	private static Vector2 gameSizeDK1 = new Vector2(1280, 800); // Oculus Rift DK1 resolution
+	private static Vector2 gameSizeDK2 = new Vector2(1920, 1080); // Oculus Rift DK2 resolution
+
 	//Desired window resolution
-	public Vector2 gameSize = new Vector2(_gameSize.x, _gameSize.y);
+	public Vector2 gameSize = new Vector2(0, 0);
 	
 	//Desired window position
-	public Vector2 gamePosition = new Vector2(_gamePosition.x, _gamePosition.y);
+	public Vector2 gamePosition = new Vector2(0, 0);
 	
 	//Tells the script to use the default resolution specified in the player settings.
 	//private bool usePlayerSettingsResolution = false;
@@ -67,6 +67,7 @@ public class GameWindowMover : EditorWindow
 	// add for win32 api to get display resolution
 	// ---------------------------------------------------------------------------------------------------
 	// resolutions list exclude main monitor
+#if UNITY_STANDALONE_WIN
 	private List<RectApi> screenInfo;
 	
 	delegate bool MonitorEnumProc(IntPtr hMonitor, IntPtr hdc, ref RectApi pRect, int dwData);
@@ -116,11 +117,6 @@ public class GameWindowMover : EditorWindow
 		return true;
 	}
 	
-	void Awake()
-	{
-		SetDefault(false);
-	}
-	
 	void SetDefault(bool flg)
 	{
 		screenInfo = new List<RectApi>();
@@ -139,6 +135,21 @@ public class GameWindowMover : EditorWindow
 	// ---------------------------------------------------------------------------------------------------
 	// end win32 api
 	// ---------------------------------------------------------------------------------------------------
+#elif UNITY_STANDALONE_OSX
+	void SetDefault(bool flg)
+	{
+		if (flg || gameSize.x == 0) {
+			Resolution reso = UnityEngine.Screen.currentResolution;
+			gameSize = gameSizeDK2;
+			gamePosition = new Vector2(reso.width, 0);
+		}
+	}
+#endif
+
+	void Awake()
+	{
+		SetDefault(false);
+	}
 
 #endif
 	//Shows the popup
